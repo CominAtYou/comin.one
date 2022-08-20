@@ -1,8 +1,12 @@
 import discordAvatar from "./discord/discordAvatar";
 
-const map = new Map([
+const processedRedirects = new Map([
 	["/discord-avatar", discordAvatar]
 ]);
+
+const simpleRedirects = new Map([
+	["/favicon.ico", "https://cominatyou.com/favicons/favicon-light.ico"]
+])
 
 export interface Env {
 	// Binding to KV. https://developers.cloudflare.com/workers/runtime-apis/kv/
@@ -18,10 +22,14 @@ export default {
 		if (url.pathname === "/") {
 			return Response.redirect("https://www.cominatyou.com", 301);
 		}
-		if (!map.has(url.pathname)) {
-			return new Response(`Can't find ${url.pathname}`, { status: 404, statusText: "Not Found" });
+		else if (processedRedirects.has(url.pathname)) {
+			return await processedRedirects.get(url.pathname)!(request, env, ctx);
 		}
-		//@ts-ignore
-		return await map.get(url.pathname)(request, env, ctx);
+		else if (simpleRedirects.has(url.pathname)) {
+			return Response.redirect(simpleRedirects.get(url.pathname)!, 301);
+		}
+		else {
+			return await fetch("https://http.cat/" + 404);
+		}
 	}
 };
