@@ -9,7 +9,6 @@ It's nothing special. All it does is just provide some helpful URLs and redirect
 
 - `/discord-avatar?server=id` — Gets a Discord server avatar for the linked account
 
-## Things it Will Do in the Future
 - `/discord-banner` — Gets the Discord banner for the linked account
 
-- Various other redirects.
+- A bunch of other miscellaneous redirects

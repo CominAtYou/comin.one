@@ -3,7 +3,7 @@ import { Env } from "..";
 import checkForGuildMembership from "./guilds";
 import updateToken from "./tokenManagement";
 
-export default async function discordAvatar(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+export default async function discordAvatar(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
     // validate ID
@@ -31,7 +31,7 @@ export default async function discordAvatar(request: Request, env: Env, ctx: Exe
 async function getDefaultAvatar(env: Env) {
     const cachedAvatarHash = await env.CACHE.get("avatar_default");
     if (cachedAvatarHash !== null) {
-        return await fetch(`https://cdn.discordapp.com/avatars/${await env.CREDS.get("DISCORD_ID")}/${cachedAvatarHash}?size=1024`);
+        return await fetch(`https://cdn.discordapp.com/avatars/${env.DISCORD_ID}/${cachedAvatarHash}?size=1024`);
     }
 
     const req = await fetch("https://discord.com/api/v10/users/@me", {
@@ -48,7 +48,7 @@ async function getDefaultAvatar(env: Env) {
     const response: RESTGetAPICurrentUserResult = await req.json();
     await env.CACHE.put("avatar_default", response.avatar as string);
 
-    return await fetch(`https://cdn.discordapp.com/avatars/${await env.CREDS.get("DISCORD_ID")}/${response.avatar}?size=1024`);
+    return await fetch(`https://cdn.discordapp.com/avatars/${env.DISCORD_ID}/${response.avatar}?size=1024`);
 }
 
 async function getGuildAvatar(id: string, env: Env): Promise<Response> {
@@ -58,7 +58,7 @@ async function getGuildAvatar(id: string, env: Env): Promise<Response> {
         return await getDefaultAvatar(env);
     }
     else if (cachedGuildAvatarHash !== null) {
-        return await fetch(`https://discord.com/guilds/${id}/users/${await env.CREDS.get("DISCORD_ID")}/${cachedGuildAvatarHash}?size=1024`);
+        return await fetch(`https://discord.com/guilds/${id}/users/${env.DISCORD_ID}/${cachedGuildAvatarHash}?size=1024`);
     }
 
     const req = await fetch(`https://discord.com/api/v10/users/@me/guilds/${id}/member`, {
@@ -80,6 +80,6 @@ async function getGuildAvatar(id: string, env: Env): Promise<Response> {
     }
     else {
         await env.CACHE.put(`avatar${id}`, response.avatar as string, { expirationTtl: 600 });
-        return await fetch(`https://cdn.discordapp.com/guilds/${id}/users/${await env.CREDS.get("DISCORD_ID")}/avatars/${response.avatar as string}?size=1024`);
+        return await fetch(`https://cdn.discordapp.com/guilds/${id}/users/${env.DISCORD_ID}/avatars/${response.avatar as string}?size=1024`);
     }
 }
