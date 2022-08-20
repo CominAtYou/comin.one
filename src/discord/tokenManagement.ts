@@ -19,5 +19,5 @@ export default async function updateToken(env: Env) {
     }
 
     const response: RESTPostOAuth2ClientCredentialsResult = await req.json();
-    await env.CREDS.put("access_token", response.access_token, {expirationTtl: response.expires_in});
+    await env.CREDS.put("access_token", response.access_token, { expirationTtl: response.expires_in });
 }

@@ -6,9 +6,9 @@ import updateToken from "./tokenManagement";
 export default async function discordAvatar(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
-    // validate ID
     let id = url.searchParams.get("server");
 
+    // validate ID - if invalid, get default avatar
     if (!/[0-9]{17,19}/.test(id as string)) id = null;
 
     if (await env.CREDS.get("access_token") === null) {
@@ -20,15 +20,10 @@ export default async function discordAvatar(request: Request, env: Env): Promise
         if (!(await checkForGuildMembership(env, id))) id = null;
     }
 
-    if (id === null) {
-        return await getDefaultAvatar(env);
-    }
-    else {
-        return await getGuildAvatar(id, env);
-    }
+    return id === null ? await getDefaultAvatar(env) : await getGuildAvatar(id, env);
 }
 
-async function getDefaultAvatar(env: Env) {
+async function getDefaultAvatar(env: Env): Promise<Response> {
     const cachedAvatarHash = await env.CACHE.get("avatar_default");
     if (cachedAvatarHash !== null) {
         return await fetch(`https://cdn.discordapp.com/avatars/${env.DISCORD_ID}/${cachedAvatarHash}?size=1024`);
@@ -46,7 +41,7 @@ async function getDefaultAvatar(env: Env) {
     }
 
     const response: RESTGetAPICurrentUserResult = await req.json();
-    await env.CACHE.put("avatar_default", response.avatar as string);
+    await env.CACHE.put("avatar_default", response.avatar as string, { expirationTtl: 600 });
 
     return await fetch(`https://cdn.discordapp.com/avatars/${env.DISCORD_ID}/${response.avatar}?size=1024`);
 }
