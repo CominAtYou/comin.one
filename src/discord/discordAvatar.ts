@@ -53,7 +53,7 @@ async function getGuildAvatar(id: string, env: Env): Promise<Response> {
         return await getDefaultAvatar(env);
     }
     else if (cachedGuildAvatarHash !== null) {
-        return await fetch(`https://discord.com/guilds/${id}/users/${env.DISCORD_ID}/${cachedGuildAvatarHash}?size=1024`);
+        return await fetch(`https://cdn.discordapp.com/guilds/${id}/users/${env.DISCORD_ID}/avatars/${cachedGuildAvatarHash}?size=1024`);
     }
 
     const req = await fetch(`https://discord.com/api/v10/users/@me/guilds/${id}/member`, {
