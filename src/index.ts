@@ -14,6 +14,10 @@ const simpleRedirects = new Map([
     ["/", "https://cominatyou.com"]
 ]);
 
+const hostRedirects = new Map([
+	["b.comin.one", "https://beta.cominatyou.com"]
+]);
+
 export interface Env {
 	// Binding to KV. https://developers.cloudflare.com/workers/runtime-apis/kv/
 	CACHE: KVNamespace;
@@ -26,7 +30,11 @@ export interface Env {
 export default {
 	async fetch(request: Request, env: Env): Promise<Response> {
 		const url = new URL(request.url);
-		if (processedRedirects.has(url.pathname)) {
+		if (hostRedirects.has(url.hostname)) {
+			return Response.redirect(hostRedirects.get(url.host)!, 301);
+		}
+		else if (processedRedirects.has(url.pathname)) {
+			console.log(url.pathname);
 			return await processedRedirects.get(url.pathname)!(request, env);
 		}
 		else if (simpleRedirects.has(url.pathname)) {
