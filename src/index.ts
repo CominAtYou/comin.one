@@ -1,4 +1,4 @@
-import discordAvatar from "./discord/discordAvatar";
+import discordAvatar from "./discord/avatar/discordAvatar";
 import discordBanner from "./discord/discordBanner";
 
 const processedRedirects = new Map([
@@ -34,7 +34,6 @@ export default {
 			return Response.redirect(hostRedirects.get(url.host)!, 301);
 		}
 		else if (processedRedirects.has(url.pathname)) {
-			console.log(url.pathname);
 			return await processedRedirects.get(url.pathname)!(request, env);
 		}
 		else if (simpleRedirects.has(url.pathname)) {
