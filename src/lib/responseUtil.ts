@@ -26,13 +26,14 @@ export function sendCachedImageRequestResponse(res: Response, data: CachedImageD
  * @param res The response from calling fetch() on the avatar URL.
  * @param kvData Data regarding the avatar to be stored in KV.
  * @param env The environment associated with KV.
+ * @param isBanner Whether or not the image is a banner. Defaults to false.
  * @returns A response that should be sent to the client.
  */
-export async function sendAndCacheImageRequestResponse(res: Response, kvData: { guildId: string, hash: string }, env: Env) {
+export async function sendAndCacheImageRequestResponse(res: Response, kvData: { guildId: string, hash: string }, env: Env, isBanner = false) {
     const response = new Response(res.body, res);
     const type = res.headers.get("Content-Type")!.replace("image/", "");
 
-    await env.CACHE.put(`avatar_${kvData.guildId}`, JSON.stringify({hash: kvData.hash, type}), { expirationTtl: 600 });
+    await env.CACHE.put(`${isBanner ? "banner" : "avatar"}_${kvData.guildId}`, JSON.stringify({hash: kvData.hash, type}), { expirationTtl: 600 });
 
     response.headers.append("Content-Disposition", `inline; filename="${kvData.hash}.${type}"`);
     return response;

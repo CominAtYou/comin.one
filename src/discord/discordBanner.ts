@@ -1,13 +1,16 @@
 import { RESTGetAPICurrentUserResult } from "discord-api-types/v10";
 import { Env } from "..";
+import CachedImageData from "../lib/CachedImageData";
+import { sendAndCacheImageRequestResponse, sendCachedImageRequestResponse } from "../lib/responseUtil";
 import updateToken from "./tokenManagement";
 
-export default async function discordBanner(request: Request, env: Env): Promise<Response> {
-    const cachedBannerHash = await env.CACHE.get("banner_hash");
-    if (cachedBannerHash !== null) {
-        return await fetch(`https://cdn.discordapp.com/banners/${env.DISCORD_ID}/${cachedBannerHash}?size=1024`);
+export default async function discordBanner(_request: Request, env: Env): Promise<Response> {
+    const cachedBannerData = await env.CACHE.get("banner_data");
+    if (cachedBannerData !== null) {
+        const bannerData: CachedImageData = JSON.parse(cachedBannerData);
+        const banner = await fetch(`https://cdn.discordapp.com/banners/${env.DISCORD_ID}/${bannerData.hash}?size=1024`);
+        return sendCachedImageRequestResponse(banner, bannerData);
     }
-
 
     if (await env.CREDS.get("access_token") === null) {
         await updateToken(env);
@@ -25,7 +28,7 @@ export default async function discordBanner(request: Request, env: Env): Promise
     }
 
     const response: RESTGetAPICurrentUserResult = await req.json();
-    await env.CACHE.put("banner_hash", response.banner as string, { expirationTtl: 600 });
+    const banner = await fetch(`https://cdn.discordapp.com/banners/${env.DISCORD_ID}/${response.banner}?size=1024`);
 
-    return await fetch(`https://cdn.discordapp.com/banners/${env.DISCORD_ID}/${response.banner}?size=1024`);
+    return sendAndCacheImageRequestResponse(banner, { guildId: "default", hash: response.banner! }, env, true);
 }
