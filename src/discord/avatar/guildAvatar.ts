@@ -1,13 +1,13 @@
 import { RESTGetAPIGuildMemberResult } from "discord-api-types/v10";
 import { Env } from "../..";
-import CachedAvatarData from "../../lib/CachedAvatarData";
+import CachedImageData from "../../lib/CachedImageData";
 import { sendAndCacheImageRequestResponse, sendCachedImageRequestResponse } from "../../lib/responseUtil";
 import getDefaultAvatar from "./defaultAvatar";
 
 export default async function getGuildAvatar(id: string, env: Env): Promise<Response> {
     const cachedGuildAvatarJson = await env.CACHE.get(`avatar_${id}`);
     if (cachedGuildAvatarJson !== null) {
-        const cachedAvatarData: CachedAvatarData = JSON.parse(cachedGuildAvatarJson);
+        const cachedAvatarData: CachedImageData = JSON.parse(cachedGuildAvatarJson);
 
         if (cachedAvatarData.hash === "default") {
             return await getDefaultAvatar(env);

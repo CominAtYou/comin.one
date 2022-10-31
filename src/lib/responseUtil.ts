@@ -1,4 +1,4 @@
-import CachedAvatarData from "./CachedAvatarData";
+import CachedImageData from "./CachedImageData";
 import { Env } from "..";
 
 /*
@@ -14,7 +14,7 @@ import { Env } from "..";
  * @param data The cached avatar data.
  * @returns A response that should be sent to the client.
  */
-export function sendCachedImageRequestResponse(res: Response, data: CachedAvatarData) {
+export function sendCachedImageRequestResponse(res: Response, data: CachedImageData) {
     const response = new Response(res.body, res);
     response.headers.append("Content-Disposition", `inline; filename="${data.hash}.${data.type}"`);
     return response;
