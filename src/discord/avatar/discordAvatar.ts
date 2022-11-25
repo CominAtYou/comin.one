@@ -6,20 +6,20 @@ import getGuildAvatar from "./guildAvatar";
 
 export default async function discordAvatar(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+    const id = url.searchParams.get("server");
 
-    let id = url.searchParams.get("server");
+    // validate ID
+    if (id && !/[0-9]{17,19}/.test(id)) {
+        return new Response("Invalid server ID", { status: 400 });
+    }
 
-    // validate ID - if invalid, get default avatar
-    if (!/[0-9]{17,19}/.test(id as string)) id = null;
-
-    if (await env.CREDS.get("access_token") === null) {
+    if (!(await env.CREDS.get("access_token"))) {
         await updateToken(env);
     }
 
-    if (id !== null) {
-        // If guild ID is not a server I am in, get default avatar
-        if (!(await checkForGuildMembership(env, id))) id = null;
+    if (id && !(await checkForGuildMembership(env, id))) {
+        return new Response("Not Found", { status: 404 });
     }
 
-    return id === null ? await getDefaultAvatar(env) : await getGuildAvatar(id, env);
+    return id ? await getGuildAvatar(id, env) : await getDefaultAvatar(env);
 }
