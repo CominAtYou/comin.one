@@ -1,10 +1,10 @@
 import { Env } from "..";
-import { RESTGetAPICurrentUserGuildsResult} from "discord-api-types/v10";
+import { RESTGetAPICurrentUserGuildsResult } from "discord-api-types/v10";
 
 export default async function checkForGuildMembership(env: Env, guildId: string): Promise<boolean> {
     const guilds = await env.CACHE.get("guild_cache");
     if (guilds !== null) {
-        return (JSON.parse(guilds) as RESTGetAPICurrentUserGuildsResult).filter(s => s.id === guildId).length !== 0;
+        return (JSON.parse(guilds) as RESTGetAPICurrentUserGuildsResult).some(s => s.id === guildId);
     }
 
     const req = await fetch("https://discord.com/api/v10/users/@me/guilds", {
@@ -19,5 +19,5 @@ export default async function checkForGuildMembership(env: Env, guildId: string)
     const result: RESTGetAPICurrentUserGuildsResult = await req.json();
     await env.CACHE.put("guild_cache", JSON.stringify(result), { expirationTtl: 604800 });
 
-    return result.filter(s => s.id === guildId).length !== 0;
+    return result.some(s => s.id === guildId);
 }
