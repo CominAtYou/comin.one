@@ -8,6 +8,7 @@ const processedRedirects = new Map([
 
 const simpleRedirects = new Map([
 	["/favicon.ico", "https://cominatyou.com/favicons/favicon-light.ico"],
+	["/meta/source", "https://github.com/CominAtYou/comin.one"],
 	["/github", "https://github.com/CominAtYou"],
 	["/twitter", "https://www.twitter.com/iiCominAtYou"],
     ["/steam", "https://steamcommunity.com/profiles/76561198366095638"],
