@@ -33,7 +33,8 @@ export default {
 			return Response.redirect(simpleRedirects.get(url.pathname)!, 301);
 		}
 		else {
-			return await fetch("https://http.cat/404");
+			const res =  await fetch("https://http.cat/404");
+			return new Response(res.body, { status: 404, headers: res.headers });
 		}
 	}
 };
