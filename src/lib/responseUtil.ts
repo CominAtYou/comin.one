@@ -17,6 +17,8 @@ import { Env } from "..";
 export function sendCachedImageRequestResponse(res: Response, data: CachedImageData) {
     const response = new Response(res.body, res);
     response.headers.append("Content-Disposition", `inline; filename="${data.hash}.${data.type}"`);
+    response.headers.delete("Set-Cookie");
+
     return response;
 }
 
@@ -35,6 +37,8 @@ export async function sendAndCacheImageRequestResponse(res: Response, kvData: { 
 
     await env.CACHE.put(`${isBanner ? "banner" : "avatar"}_${kvData.guildId}`, JSON.stringify({hash: kvData.hash, type}), { expirationTtl: 600 });
 
+    response.headers.delete("Set-Cookie");
     response.headers.append("Content-Disposition", `inline; filename="${kvData.hash}.${type}"`);
+
     return response;
 }
